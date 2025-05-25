@@ -2,368 +2,221 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>444 JSON STASH MAKER</title>
+  <title>AC JSON HUB</title>
   <style>
     body {
-      background: black;
-      color: white;
-      font-family: Arial, sans-serif;
       margin: 0;
-      overflow: hidden;
+      background: #2e1f4e;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
     }
     .container {
       display: flex;
-      height: calc(100vh - 200px);
+      height: 100vh;
       padding: 10px;
-      border: 2px solid green;
-      box-sizing: border-box;
     }
-    .stash-grid {
+    .inventory, .inspector {
       flex: 1;
+      padding: 20px;
+      border-radius: 8px;
+      background: #3b1e70;
+    }
+    .title {
+      font-size: 24px;
+      color: #f1c6fc;
+      margin-bottom: 20px;
+    }
+    .grid {
       display: grid;
-      grid-template-columns: repeat(10, 60px);
-      gap: 5px;
-      overflow-y: auto;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
     }
     .item {
-  border: 1px solid green;
-      background: #111;
-      border: 1px solid #555;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
+      background: #5c3d8b;
+      border: 2px solid #7f5d8d;
+      padding: 10px;
+      text-align: center;
+      border-radius: 6px;
       cursor: pointer;
-      width: 60px;
-      height: 75px;
-      transition: 0.2s ease; background: #222;
+      transition: 0.3s;
     }
-    .item img {
-      width: 40px;
-      height: 40px;
-      transition: 0.2s ease; background: #222;
+    .item:hover {
+      background: #7f5d8d;
+      transform: scale(1.05);
     }
-    .footer {
-      height: 60px;
+    .edit-panel {
+      background: #4f2f6d;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    .edit-panel input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
+      border: 1px solid #7f5d8d;
+      background: #6a3f85;
+      color: white;
+    }
+    .bottom-bar {
+      margin-top: 20px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      padding: 0 20px;
-      background: #111;
-      border-top: 2px solid green;
     }
-    .controls {
-      height: 140px;
-      padding: 10px 20px;
-      background: #111;
-      border-top: 2px solid green;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .control-group {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-    .control {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    input[type="number"] {
-      width: 80px;
-      background: #222;
-      color: white;
-      border: 1px solid #555;
-      padding: 4px;
-    }
-    .btn {
-      padding: 6px 12px;
-      background: purple;
-      color: white;
+    .button {
+      background: #aa66ff;
       border: none;
-      font-size: 14px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
       cursor: pointer;
     }
-    select, input[type="file"] {
-      background: #222;
+    .button:hover {
+      background: #cc99ff;
+    }
+    .button:disabled {
+      background: #666;
+    }
+    select {
+      background: #6a3f85;
       color: white;
-      border: 1px solid #555;
-      padding: 4px;
+      border: 1px solid #7f5d8d;
+      padding: 8px;
+      border-radius: 6px;
     }
-    .preview-box {
-      width: 120px;
-      height: 120px;
-      border: 2px dashed #444;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #222;
+    .sliders {
+      margin-top: 20px;
     }
-    .preview-box img {
-      max-width: 100%;
-      max-height: 100%;
-      transform-origin: center;
-      transition: 0.2s ease; background: #222;
+    .sliders label {
+      display: block;
+      margin-bottom: 5px;
     }
-    .green-dot {
-      width: 8px;
-      height: 8px;
-      background: lime;
-      border-radius: 50%;
-      position: fixed;
-      pointer-events: none;
-      z-index: 9999;
+    .sliders input[type="range"] {
+      width: 100%;
+      background: #7f5d8d;
+      border-radius: 6px;
     }
   </style>
 </head>
 <body>
 
-<div style="background: #222; color: lime; text-align: center; padding: 5px; font-size: 16px; border-bottom: 2px solid green;">
-  V.1.00 UPDATE
-</div>
-
-
-<div class="green-dot" id="greenDot"></div>
-
 <div class="container">
-  <div class="stash-grid" id="stash-grid"></div>
-</div>
-
-<div class="footer">
-  <div>
-    
-    <input type="text" id="item-search" placeholder="Search items..." style="width:200px; margin-right:10px; background:#111; color:white; border:1px solid #555;" oninput="filterItems()">
-    <select id="item-select"></select>
-     Slot: <input type="number" id="slot-input" value="0" min="0" max="707" style="width:80px; background:#222; color:white; border:1px solid #555;">
-    <button class="btn" onclick="addItem()">Add Item</button>
-    <button class="btn" onclick="exportJSON()">Export JSON</button>
-    <input type="file" id="import-file" onchange="importJSON(event)">
-  </div>
-  <div id="status">Root: none</div>
-</div>
-
-<div class="controls">
-  <div class="control-group">
-    <div class="control">
-      <label>Size</label>
-      <input type="number" id="sizeInput" value="0" min="-127" max="127" oninput="updateSelected()">
-      <button onclick="randomize('size')">🎲</button>
-    </div>
-    <div class="control">
-      <label>Hue</label>
-      <input type="number" id="hueInput" value="0" min="0" max="240" oninput="updateSelected()">
-      <button onclick="randomize('hue')">🎲</button>
-    </div>
-    <div class="control">
-      <label>Saturation</label>
-      <input type="number" id="satInput" value="0" min="-124" max="124" oninput="updateSelected()">
-      <button onclick="randomize('sat')">🎲</button>
+  <div class="inventory">
+    <div class="title">Inventory</div>
+    <div class="grid" id="stashGrid"></div>
+    <div class="bottom-bar">
+      <select id="itemSelect"></select>
+      <button class="button" onclick="addItem()">Add</button>
+      <button class="button" onclick="exportStash()">Export JSON</button>
     </div>
   </div>
-
-  
+  <div class="inspector">
+    <div class="title">Inspector</div>
+    <div id="editor" class="edit-panel">Click an item to edit it</div>
+  </div>
 </div>
 
 <script>
-const greenDot = document.getElementById('greenDot');
-document.addEventListener('mousemove', e => {
-  greenDot.style.left = `${e.clientX}px`;
-  greenDot.style.top = `${e.clientY}px`;
-});
-document.addEventListener('touchmove', e => {
-  if (e.touches.length > 0) {
-    greenDot.style.left = `${e.touches[0].clientX}px`;
-    greenDot.style.top = `${e.touches[0].clientY}px`;
-  }
-});
-
-
-function filterItems() {
-  const query = document.getElementById('item-search').value.toLowerCase();
-  const select = document.getElementById('item-select');
-  select.innerHTML = '';
-  itemList.filter(item => item.toLowerCase().includes(query)).forEach(id => {
-    const opt = document.createElement('option');
-    opt.value = id;
-    opt.textContent = id;
-    select.appendChild(opt);
-  });
-  filterItems();
-}
-
-
-const itemList = ["item_apple", "item_anti_gravity_grenade", "item_arrow", "item_arrow_heart", "item_arrow_lightbulb", "item_backpack", "item_backpack_black", "item_backpack_green", "item_backpack_large_base", "item_backpack_large_clover", "item_backpack_large_basketball", "item_backpack_pink", "item_backpack_small_base", "item_backpack_white", "item_backpack_with_flashlight", "item_balloon", "item_balloon_heart", "item_banana", "item_baseball_bat", "item_big_cup", "item_boombox", "item_box_fan", "item_boombox_neon", "item_calculator", "item_cardboard_box", "item_cash", "item_cash_pile", "item_cash_mega_pile", "item_clapper", "item_cluster_grenade", "item_cola", "item_cola_large", "item_company_ration", "item_company_ration_heal", "item_cracker", "item_crate", "item_crossbow", "item_crossbow_heart", "item_crowbar", "item_disc", "item_disposable_camera", "item_dynamite", "item_dynamite_cube", "item_egg", "item_flaregun", "item_flashbang", "item_flashlight", "item_flashlight_mega", "item_flashlight_red", "item_floppy3", "item_floppy5", "item_football", "item_frying_pan", "item_glowstick", "item_goldbar", "item_grenade", "item_heart_chunk", "item_heart_gun", "item_heartchocolatebox", "item_hh_key", "item_hookshot", "item_hoverpad", "item_impulse_grenade", "item_jetpack", "item_keycard", "item_lance", "item_large_banana", "item_mug", "item_nut", "item_ogre_hands", "item_ore_copper_l", "item_ore_copper_m", "item_ore_copper_s", "item_ore_gold_l", "item_ore_gold_m", "item_ore_gold_s", "item_ore_hell", "item_ore_silver_l", "item_ore_silver_m", "item_ore_silver_s", "item_painting_canvas", "item_paperpack", "item_pelican_case", "item_pickaxe", "item_pickaxe_cny", "item_pickaxe_cube", "item_pipe", "item_plunger", "item_pogostick", "item_police_baton", "item_pumpkin_pie", "item_pumpkinjack", "item_pumpkinjack_small", "item_quiver", "item_quiver_heart", "item_radioactive_broccoli", "item_randombox_mobloot_big", "item_randombox_mobloot_medium", "item_randombox_mobloot_small", "item_randombox_mobloot_weapons", "item_revolver", "item_revolver_ammo", "item_rope", "item_rpg", "item_rpg_ammo", "item_rpg_cny", "item_rubberducky", "item_ruby", "item_saddle", "item_scanner", "item_scissors", "item_shield", "item_shield_bones", "item_shield_police", "item_shotgun", "item_shotgun_ammo", "item_shredder", "item_shrinking_broccoli", "item_snowball", "item_stapler", "item_stick_armbones", "item_stick_bone", "item_sticker_dispenser", "item_sticky_dynamite", "item_stinky_cheese", "item_tablet", "item_tapedispenser", "item_tele_grenade", "item_theremin", "item_timebomb", "item_toilet_paper", "item_toilet_paper_mega", "item_toilet_paper_roll_empty", "item_treestick", "item_tripwire_explosive", "item_trophy", "item_turkey_leg", "item_turkey_whole", "item_umbrella", "item_umbrella_clover", "item_unidentified", "item_upsidedown_loot", "item_uranium_chunk_l", "item_uranium_chunk_m", "item_uranium_chunk_s", "item_whoopie", "item_zipline_gun", "item_rpg_easter", "item_rpg_ammo_egg", "item_revolver_gold"];
+const fullItemList = [
+  "item_apple", "item_anti_gravity_grenade", "item_arrow", "item_arrow_heart", "item_arrow_lightbulb",
+  "item_backpack", "item_backpack_black", "item_backpack_green", "item_backpack_large_base",
+  "item_backpack_large_clover", "item_backpack_large_basketball", "item_backpack_pink",
+  "item_backpack_small_base", "item_backpack_white", "item_backpack_with_flashlight", "item_balloon",
+  "item_heart_gun", "item_shredder", "item_jetpack", "item_timebomb", "item_turkey_whole"
+];
 
 const stash = [];
-let selectedIndex = null;
-let clipboard = null;
-let rootIndex = null;
 
-const stashGrid = document.getElementById('stash-grid');
-const itemSelect = document.getElementById('item-select');
-const preview = document.getElementById('preview');
-
-itemList.forEach(id => {
-  const opt = document.createElement('option');
-  opt.value = id;
-  opt.textContent = id;
-  itemSelect.appendChild(opt);
-});
-
-function addItem() {
-  const id = itemSelect.value;
-  stash.push({ id, size: 0, hue: 0, saturation: 0 });
-  render();
+function displayName(name) {
+  return name.replace("item_", "").replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
 }
 
-
-
-function render() {
-  stashGrid.innerHTML = '';
-  const columns = 8;
-  const rows = 10;
-
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < columns; col++) {
-      const slotNumber = row * 100 + col;
-      const div = document.createElement('div');
-      div.className = 'item';
-
-      // Always show slot label at bottom
-      const label = document.createElement('div');
-      label.textContent = 'slot ' + slotNumber;
-      label.style.fontSize = '11px';
-      label.style.color = 'lime';
-      label.style.marginTop = 'auto';
-      label.style.pointerEvents = 'none';
-
-      const item = stash.find(obj => obj.stashPos === slotNumber);
-      if (item) {
-        
-    const icon = document.createElement('img');
-    icon.src = item.id === 'item_heart_gun' ? 'heart_gun_icon.png' : '';
-    icon.style.width = '30px';
-    icon.style.height = '30px';
-    icon.style.marginBottom = '2px';
-    div.appendChild(icon);
-
-    const name = document.createElement('div');
-    name.textContent = item.id;
-    name.style.fontSize = '10px';
-    name.style.color = '#fff';
-    div.appendChild(name);
-    
-      }
-
-      div.appendChild(label);
-
-      div.onclick = () => {
-        const selectedID = document.getElementById('item-select').value;
-        const existingIndex = stash.findIndex(obj => obj.stashPos === slotNumber);
-        const newItem = {
-          id: selectedID,
-          size: 0,
-          hue: 0,
-          saturation: 0,
-          stashPos: slotNumber
-        };
-        if (existingIndex !== -1) {
-          stash[existingIndex] = newItem;
-        } else {
-          stash.push(newItem);
-        }
-        render();
-      };
-
-      stashGrid.appendChild(div);
-    }
-  }
-}
-
-  }
-}
-
+function renderStash() {
+  const grid = document.getElementById("stashGrid");
+  grid.innerHTML = '';
+  stash.forEach((item, i) => {
+    const div = document.createElement("div");
+    div.className = "item";
+    div.textContent = displayName(item.name);
+    div.onclick = () => editItem(i);
+    grid.appendChild(div);
   });
 }
 
-function updatePreview(item = stash[selectedIndex]) {
-  if (!item) return;
-  const size = parseInt(document.getElementById('sizeInput').value) || 0;
-  const hue = parseInt(document.getElementById('hueInput').value) || 0;
-  const sat = parseInt(document.getElementById('satInput').value) || 0;
-  preview.style.transform = `scale(${1 + size / 100})`;
-  preview.style.filter = `hue-rotate(${hue}deg) saturate(${1 + sat / 100})`;
+function addItem() {
+  const select = document.getElementById("itemSelect");
+  const name = select.value;
+  if (!name) return;
+  stash.push({
+    name,
+    hue: 0,
+    saturation: 0,
+    size: 0,
+    contents: []
+  });
+  renderStash();
 }
 
-function updateSelected() {
-  const item = stash[selectedIndex];
-  if (!item) return;
-  item.size = parseInt(document.getElementById('sizeInput').value) || 0;
-  item.hue = parseInt(document.getElementById('hueInput').value) || 0;
-  item.saturation = parseInt(document.getElementById('satInput').value) || 0;
-  updatePreview(item);
-  render();
+function editItem(index) {
+  const item = stash[index];
+  const editor = document.getElementById("editor");
+  editor.innerHTML = `
+    <strong>${displayName(item.name)}</strong>
+    <div class="sliders">
+      <label>Size (-127–127):</label>
+      <input type="range" min="-127" max="127" value="${item.size}" onchange="updateProp(${index}, 'size', this.value)">
+      <label>Hue (0–240):</label>
+      <input type="range" min="0" max="240" value="${item.hue}" onchange="updateProp(${index}, 'hue', this.value)">
+      <label>Saturation (-124–124):</label>
+      <input type="range" min="-124" max="124" value="${item.saturation}" onchange="updateProp(${index}, 'saturation', this.value)">
+    </div>
+    <div style="margin-top:10px">
+      <button class="button" onclick="deleteItem(${index})">Delete</button>
+      <button class="button" onclick="randomize(${index})">Randomize</button>
+    </div>
+  `;
 }
 
-function randomize(type) {
-  if (!stash[selectedIndex]) return;
-  if (type === 'size') {
-    stash[selectedIndex].size = Math.floor(Math.random() * 255) - 127;
-  } else if (type === 'hue') {
-    stash[selectedIndex].hue = Math.floor(Math.random() * 241);
-  } else if (type === 'sat') {
-    stash[selectedIndex].saturation = Math.floor(Math.random() * 249) - 124;
-  }
-  document.getElementById('sizeInput').value = stash[selectedIndex].size;
-  document.getElementById('hueInput').value = stash[selectedIndex].hue;
-  document.getElementById('satInput').value = stash[selectedIndex].saturation;
-  updatePreview(stash[selectedIndex]);
-  render();
+function updateProp(index, prop, value) {
+  stash[index][prop] = Number(value);
 }
 
-
-function formatItem(item) {
-  const formatted = {
-    itemID: item.id,
-    stashPos: item.stashPos,
-    scaleModifier: item.size,
-    colorHue: item.hue,
-    colorSaturation: item.saturation
-  };
-  if (item.children && item.children.length > 0) {
-    formatted.children = item.children.map(formatItem);
-  }
-  return formatted;
+function deleteItem(index) {
+  stash.splice(index, 1);
+  renderStash();
 }
 
-function exportJSON() {
-  const formattedItems = stash.map(formatItem);
-  const blob = new Blob([JSON.stringify({ version: 1, items: formattedItems }, null, 2)], { type: "application/json" });
+function randomize(index) {
+  stash[index].hue = Math.floor(Math.random() * 241);
+  stash[index].saturation = Math.floor(Math.random() * 249) - 124;
+  stash[index].size = Math.floor(Math.random() * 255) - 127;
+  editItem(index);
+}
+
+function exportStash() {
+  const json = JSON.stringify(stash, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
+  a.href = url;
   a.download = "stash.json";
   a.click();
+  URL.revokeObjectURL(url);
 }
 
-
-function importJSON(e) {
-  const file = e.target.files[0];
-  const reader = new FileReader();
-  reader.onload = () => {
-    const data = JSON.parse(reader.result);
-    stash.length = 0;
-    stash.push(...data.stash);
-    rootIndex = data.root;
-    selectedIndex = null;
-    render();
-  };
-  reader.readAsText(file);
-}
-
-render();
+window.onload = () => {
+  const select = document.getElementById("itemSelect");
+  fullItemList.forEach(i => {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = displayName(i);
+    select.appendChild(opt);
+  });
+  renderStash();
+};
 </script>
 
 </body>
