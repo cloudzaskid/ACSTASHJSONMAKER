@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JSON Item Maker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <div class="left-panel">
+      <div class="stash-grid" id="stashGrid"></div>
+      <div class="button-bar">
+        <button class="red">Clear All</button>
+        <button class="green">Reload Example Stash</button>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <div class="equipment-container">
+        <img src="gorilla-outline.png" alt="Equipment" class="equipment-outline">
+        <div class="slot" style="top:20%;left:10%;">Left Arm</div>
+        <div class="slot" style="top:20%;right:10%;">Right Arm</div>
+        <div class="slot" style="top:5%;left:45%;">Back</div>
+        <div class="slot" style="bottom:20%;left:20%;">Left Hip</div>
+        <div class="slot" style="bottom:20%;right:20%;">Right Hip</div>
+      </div>
+      <div class="bag-viewer">
+        <p>Select a bag to view contents here</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bar">
+    <select id="itemDropdown"></select>
+    <button class="purple">Add Test Item</button>
+    <label>
+      <input type="checkbox" id="show3D" checked> Show 3D Models
+    </label>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
