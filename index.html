@@ -26,6 +26,7 @@
       overflow-y: auto;
     }
     .item {
+  border: 1px solid green;
       background: #111;
       border: 1px solid #555;
       display: flex;
@@ -133,7 +134,7 @@
 
 <div class="footer">
   <div>
-    <select id="item-select"></select>
+    <select id="item-select"></select> Slot: <input type="number" id="slot-input" value="0" min="0" max="707" style="width:80px; background:#222; color:white; border:1px solid #555;">
     <button class="btn" onclick="addItem()">Add Item</button>
     <button class="btn" onclick="exportJSON()">Export JSON</button>
     <input type="file" id="import-file" onchange="importJSON(event)">
@@ -201,57 +202,58 @@ function addItem() {
 }
 
 
+
 function render() {
   stashGrid.innerHTML = '';
   const columns = 8;
   const rows = 10;
-  const maxSlots = columns * rows;
 
-  for (let i = 0; i < maxSlots; i++) {
-    const div = document.createElement('div');
-    div.className = 'item';
-    const label = document.createElement('div');
-    label.textContent = 'slot ' + (Math.floor(i / 100) * 100 + (i % 100));
-    label.style.fontSize = '10px';
-    label.style.color = '#aaa';
-    label.style.marginTop = '4px';
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < columns; col++) {
+      const slotNumber = row * 100 + col;
+      const div = document.createElement('div');
+      div.className = 'item';
 
-    const item = stash.find(obj => obj.stashPos === (Math.floor(i / 100) * 100 + (i % 100)));
-    if (item) {
-      div.style.border = '1px solid cyan';
-      const name = document.createElement('div');
-      name.textContent = item.id;
-      name.style.fontSize = '10px';
-      name.style.color = '#fff';
-      div.appendChild(name);
-    }
+      const slotLabel = document.createElement('div');
+      slotLabel.textContent = 'slot ' + slotNumber;
+      slotLabel.style.fontSize = '11px';
+      slotLabel.style.color = '#9f9';
+      slotLabel.style.marginTop = '4px';
 
-    div.appendChild(label);
-
-    div.onclick = () => {
-      const selectedID = document.getElementById('item-select').value;
-      const existingIndex = stash.findIndex(obj => obj.stashPos === (Math.floor(i / 100) * 100 + (i % 100)));
-      if (existingIndex !== -1) {
-        stash[existingIndex] = {
-          id: selectedID,
-          size: 0,
-          hue: 0,
-          saturation: 0,
-          stashPos: Math.floor(i / 100) * 100 + (i % 100)
-        };
-      } else {
-        stash.push({
-          id: selectedID,
-          size: 0,
-          hue: 0,
-          saturation: 0,
-          stashPos: Math.floor(i / 100) * 100 + (i % 100)
-        });
+      const item = stash.find(obj => obj.stashPos === slotNumber);
+      if (item) {
+        const name = document.createElement('div');
+        name.textContent = item.id;
+        name.style.fontSize = '10px';
+        name.style.color = '#fff';
+        div.appendChild(name);
       }
-      render();
-    };
 
-    stashGrid.appendChild(div);
+      div.appendChild(slotLabel);
+
+      div.onclick = () => {
+        const selectedID = document.getElementById('item-select').value;
+        const existingIndex = stash.findIndex(obj => obj.stashPos === slotNumber);
+        const newItem = {
+          id: selectedID,
+          size: 0,
+          hue: 0,
+          saturation: 0,
+          stashPos: slotNumber
+        };
+        if (existingIndex !== -1) {
+          stash[existingIndex] = newItem;
+        } else {
+          stash.push(newItem);
+        }
+        render();
+      };
+
+      stashGrid.appendChild(div);
+    }
+  }
+}
+
   }
 }
 
