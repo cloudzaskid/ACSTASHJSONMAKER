@@ -1,177 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>STASH JSON MAKER</title>
+  <meta charset="UTF-8">
+  <title>AC JSON UI - CLOUDZ / SOULLESS</title>
   <style>
     body {
       margin: 0;
-      background-color: #000;
-      font-family: sans-serif;
-      color: #fff;
+      background: #0e0e0e;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
     }
 
     .container {
       display: flex;
-      flex-direction: column;
       height: 100vh;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
       padding: 10px;
-      background: #111;
-      border-bottom: 1px solid #222;
       gap: 10px;
     }
 
-    select, button {
-      background: #111;
-      border: 1px solid #444;
-      color: #fff;
-      padding: 6px 10px;
-      border-radius: 4px;
-      font-size: 14px;
-    }
-
-    button:hover {
-      background: #222;
-      cursor: pointer;
-    }
-
-    .main {
+    .stash, .equipment {
       flex: 1;
-      display: flex;
-      gap: 10px;
-      padding: 10px;
-      box-sizing: border-box;
-    }
-
-    .panel {
-      flex: 1;
-      background: #111;
-      border: 1px solid #222;
+      background: #1a1a1a;
+      border: 2px solid #444;
+      border-radius: 8px;
       padding: 10px;
       display: flex;
       flex-direction: column;
     }
 
     .title {
-      margin: 0 0 10px;
-      font-weight: bold;
-      font-size: 16px;
-      border-bottom: 1px solid #333;
-      padding-bottom: 5px;
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: #ff99cc;
     }
 
     .grid {
-      flex: 1;
       display: grid;
-      grid-template-columns: repeat(auto-fill, 64px);
-      grid-auto-rows: 64px;
+      grid-template-columns: repeat(6, 1fr);
       gap: 6px;
-      overflow-y: auto;
+      flex-wrap: wrap;
     }
 
     .item {
-      width: 64px;
-      height: 64px;
-      background-color: #222;
-      border: 1px solid #444;
+      background: #333;
+      padding: 6px;
       border-radius: 4px;
-      background-size: cover;
-      background-position: center;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
     }
 
-    .footer {
+    .item:hover {
+      background: #555;
+      transform: scale(1.05);
+    }
+
+    .equipment-figure {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #ccc;
+      border-top: 1px solid #333;
+      margin-top: 10px;
+      padding-top: 10px;
+    }
+
+    .bottom-bar {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      justify-content: center;
+    }
+
+    .button {
+      background: #aa66ff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .button:hover {
+      background: #cc99ff;
+    }
+
+    select {
       padding: 6px;
-      text-align: right;
-      border-top: 1px solid #222;
+      border-radius: 4px;
+      background: #222;
+      color: white;
+      border: 1px solid #555;
+    }
+
+    .nested-items {
+      margin-top: 6px;
+      padding-left: 12px;
+      color: #aaffaa;
     }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="topbar">
-    <label for="itemSelect">Select Item:</label>
-    <select id="itemSelect"></select>
-    <button onclick="addItem()">Add Item</button>
-    <button onclick="clearStash()">Clear</button>
+  <div class="stash">
+    <div class="title">Stash</div>
+    <div class="grid" id="stashGrid"></div>
+    <div class="bottom-bar">
+      <select id="itemSelect">
+        <option disabled selected>Add item...</option>
+      </select>
+      <button class="button" onclick="addItem()">Add Item</button>
+    </div>
   </div>
 
-  <div class="main">
-    <div class="panel">
-      <div class="title">STASH</div>
-      <div class="grid" id="stashGrid"></div>
-    </div>
-    <div class="panel">
-      <div class="title">EQUIPMENT</div>
-      <div class="grid" id="equipmentGrid"></div>
+  <div class="equipment">
+    <div class="title">Equipment</div>
+    <div class="equipment-figure">
+      <p>Click an item to view or add nested contents if it's a container.</p>
+      <div id="nestedView"></div>
     </div>
   </div>
 </div>
 
 <script>
+  const containerItems = new Set([
+    "item_backpack", "item_backpack_black", "item_backpack_green", "item_backpack_large_base",
+    "item_backpack_large_clover", "item_backpack_large_basketball", "item_backpack_pink",
+    "item_backpack_small_base", "item_backpack_white", "item_backpack_with_flashlight",
+    "item_shredder", "item_heart_gun"
+  ]);
+
   const itemList = [
-    "item_apple", "item_anti_gravity_grenade", "item_arrow", "item_arrow_heart",
-    "item_arrow_lightbulb", "item_backpack", "item_backpack_black", "item_backpack_green",
-    "item_backpack_large_base", "item_backpack_large_clover", "item_backpack_large_basketball",
-    "item_backpack_pink", "item_backpack_small_base", "item_backpack_white", "item_backpack_with_flashlight",
-    "item_balloon", "item_balloon_heart", "item_banana", "item_baseball_bat", "item_big_cup",
-    "item_boombox", "item_box_fan", "item_boombox_neon", "item_calculator", "item_cardboard_box",
-    "item_cash", "item_cash_pile", "item_cash_mega_pile", "item_clapper", "item_cluster_grenade",
-    "item_cola", "item_cola_large", "item_company_ration", "item_company_ration_heal", "item_cracker",
-    "item_crate", "item_crossbow", "item_crossbow_heart", "item_crowbar", "item_disc",
-    "item_disposable_camera", "item_dynamite", "item_dynamite_cube", "item_egg", "item_flaregun",
-    "item_flashbang", "item_flashlight", "item_flashlight_mega", "item_flashlight_red", "item_floppy3",
-    "item_floppy5", "item_football", "item_frying_pan", "item_glowstick", "item_goldbar", "item_grenade",
-    "item_heart_chunk", "item_heart_gun", "item_heartchocolatebox", "item_hh_key", "item_hookshot",
-    "item_hoverpad", "item_impulse_grenade", "item_jetpack", "item_keycard", "item_lance",
-    "item_large_banana", "item_mug", "item_nut", "item_ogre_hands", "item_ore_copper_l",
-    "item_ore_copper_m", "item_ore_copper_s", "item_ore_gold_l", "item_ore_gold_m", "item_ore_gold_s",
-    "item_ore_hell", "item_ore_silver_l", "item_ore_silver_m", "item_ore_silver_s", "item_painting_canvas",
-    "item_paperpack", "item_pelican_case", "item_pickaxe", "item_pickaxe_cny", "item_pickaxe_cube",
-    "item_pipe", "item_plunger", "item_pogostick", "item_police_baton", "item_pumpkin_pie",
-    "item_pumpkinjack", "item_pumpkinjack_small", "item_quiver", "item_quiver_heart",
-    "item_radioactive_broccoli", "item_randombox_mobloot_big", "item_randombox_mobloot_medium",
-    "item_randombox_mobloot_small", "item_randombox_mobloot_weapons", "item_revolver", "item_revolver_ammo",
-    "item_rope", "item_rpg", "item_rpg_ammo", "item_rpg_cny", "item_rubberducky", "item_ruby",
-    "item_saddle", "item_scanner", "item_scissors", "item_shield", "item_shield_bones",
-    "item_shield_police", "item_shotgun", "item_shotgun_ammo", "item_shredder", "item_shrinking_broccoli",
-    "item_snowball", "item_stapler", "item_stick_armbones", "item_stick_bone", "item_sticker_dispenser",
-    "item_sticky_dynamite", "item_stinky_cheese", "item_tablet", "item_tapedispenser", "item_tele_grenade",
-    "item_theremin", "item_timebomb", "item_toilet_paper", "item_toilet_paper_mega", "item_toilet_paper_roll_empty",
-    "item_treestick", "item_tripwire_explosive", "item_trophy", "item_turkey_leg", "item_turkey_whole",
-    "item_umbrella", "item_umbrella_clover", "item_unidentified", "item_upsidedown_loot",
-    "item_uranium_chunk_l", "item_uranium_chunk_m", "item_uranium_chunk_s", "item_whoopie", "item_zipline_gun",
-    "item_rpg_easter", "item_rpg_ammo_egg", "item_revolver_gold"
+    "item_apple", "item_anti_gravity_grenade", "item_arrow", "item_backpack", "item_shredder", "item_heart_gun"
+    // You can paste in the full list from the text file here
   ];
 
-  const itemSelect = document.getElementById('itemSelect');
-  const stashGrid = document.getElementById('stashGrid');
+  const displayName = name => name.replace("item_", "").replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
 
-  itemList.forEach(name => {
-    const option = document.createElement('option');
-    option.value = name;
-    option.textContent = name;
-    itemSelect.appendChild(option);
-  });
+  const stash = [];
 
-  function addItem() {
-    const name = itemSelect.value;
-    const item = document.createElement('div');
-    item.className = 'item';
-    item.title = name;
-    item.style.backgroundImage = `url('https://example.com/icons/${name}.webp')`; // Replace this path
-    stashGrid.appendChild(item);
-  }
+  const renderStash = () => {
+    const grid = document.getElementById("stashGrid");
+    grid.innerHTML = '';
+    stash.forEach((item, index) => {
+      const div = document.createElement("div");
+      div.className = "item";
+      div.textContent = displayName(item.name);
+      div.onclick = () => showNested(index);
+      grid.appendChild(div);
+    });
+  };
 
-  function clearStash() {
-    stashGrid.innerHTML = '';
-  }
+  const showNested = (index) => {
+    const item = stash[index];
+    const view = document.getElementById("nestedView");
+    if (containerItems.has(item.name)) {
+      let html = `<strong>${displayName(item.name)}</strong>`;
+      if (item.contents.length === 0) {
+        html += "<div class='nested-items'>(Empty)</div>";
+      } else {
+        html += "<div class='nested-items'>" + item.contents.map(c => displayName(c.name)).join("<br>") + "</div>";
+      }
+      const dropdown = document.createElement("select");
+      dropdown.innerHTML = itemList.map(i => `<option value="${i}">${displayName(i)}</option>`).join("");
+      const btn = document.createElement("button");
+      btn.textContent = "Add Inside";
+      btn.className = "button";
+      btn.onclick = () => {
+        item.contents.push({ name: dropdown.value });
+        showNested(index);
+        renderStash();
+      };
+      view.innerHTML = html;
+      view.appendChild(dropdown);
+      view.appendChild(btn);
+    } else {
+      view.innerHTML = `<em>${displayName(item.name)} can't hold other items.</em>`;
+    }
+  };
+
+  const addItem = () => {
+    const selected = document.getElementById("itemSelect").value;
+    if (!selected) return;
+    stash.push({ name: selected, contents: [] });
+    renderStash();
+  };
+
+  window.onload = () => {
+    const select = document.getElementById("itemSelect");
+    itemList.forEach(item => {
+      const option = document.createElement("option");
+      option.value = item;
+      option.textContent = displayName(item);
+      select.appendChild(option);
+    });
+    renderStash();
+  };
 </script>
 
 </body>
