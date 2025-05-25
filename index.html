@@ -36,12 +36,12 @@
       cursor: pointer;
       width: 60px;
       height: 75px;
-      transition: 0.2s ease;
+      transition: 0.2s ease; background: #222;
     }
     .item img {
       width: 40px;
       height: 40px;
-      transition: 0.2s ease;
+      transition: 0.2s ease; background: #222;
     }
     .footer {
       height: 60px;
@@ -105,7 +105,7 @@
       max-width: 100%;
       max-height: 100%;
       transform-origin: center;
-      transition: 0.2s ease;
+      transition: 0.2s ease; background: #222;
     }
     .green-dot {
       width: 8px;
@@ -119,6 +119,11 @@
   </style>
 </head>
 <body>
+
+<div style="background: #222; color: lime; text-align: center; padding: 5px; font-size: 16px; border-bottom: 2px solid green;">
+  V.1.00 UPDATE
+</div>
+
 
 <div class="green-dot" id="greenDot"></div>
 
@@ -155,9 +160,7 @@
     </div>
   </div>
 
-  <div class="preview-box">
-    <img id="preview" src="crate.png" alt="Preview">
-  </div>
+  
 </div>
 
 <script>
@@ -197,48 +200,61 @@ function addItem() {
   render();
 }
 
+
 function render() {
   stashGrid.innerHTML = '';
-  stash.forEach((item, i) => {
+  const columns = 8;
+  const rows = 10;
+  const maxSlots = columns * rows;
+
+  for (let i = 0; i < maxSlots; i++) {
     const div = document.createElement('div');
     div.className = 'item';
-    const img = document.createElement('img');
-    img.src = "crate.png";
-    img.style.transform = `scale(${1 + (item.size || 0) / 100})`;
-    img.style.filter = `hue-rotate(${item.hue || 0}deg) saturate(${1 + (item.saturation || 0) / 100})`;
-    div.appendChild(img);
     const label = document.createElement('div');
-    label.textContent = item.id;
+    label.textContent = 'slot ' + (Math.floor(i / 100) * 100 + (i % 100));
+    label.style.fontSize = '10px';
+    label.style.color = '#aaa';
+    label.style.marginTop = '4px';
+
+    const item = stash.find(obj => obj.stashPos === (Math.floor(i / 100) * 100 + (i % 100)));
+    if (item) {
+      div.style.border = '1px solid cyan';
+      const name = document.createElement('div');
+      name.textContent = item.id;
+      name.style.fontSize = '10px';
+      name.style.color = '#fff';
+      div.appendChild(name);
+    }
+
     div.appendChild(label);
 
-    if (i === rootIndex) div.style.border = '2px solid lime';
-    if (i === selectedIndex) div.style.border = '2px solid cyan';
-
     div.onclick = () => {
-      selectedIndex = i;
-      document.getElementById('sizeInput').value = item.size;
-      document.getElementById('hueInput').value = item.hue;
-      document.getElementById('satInput').value = item.saturation;
-      updatePreview(item);
-      render();
-    };
-
-    div.oncontextmenu = (e) => {
-      e.preventDefault();
-      const action = prompt(`Slot ${i}:\n1 = Set Root\n2 = Delete\n3 = Copy\n4 = Paste`);
-      if (action === "1") {
-        rootIndex = i;
-      } else if (action === "2") {
-        stash.splice(i, 1);
-      } else if (action === "3") {
-        clipboard = { ...item };
-      } else if (action === "4" && clipboard) {
-        stash.splice(i, 0, { ...clipboard });
+      const selectedID = document.getElementById('item-select').value;
+      const existingIndex = stash.findIndex(obj => obj.stashPos === (Math.floor(i / 100) * 100 + (i % 100)));
+      if (existingIndex !== -1) {
+        stash[existingIndex] = {
+          id: selectedID,
+          size: 0,
+          hue: 0,
+          saturation: 0,
+          stashPos: Math.floor(i / 100) * 100 + (i % 100)
+        };
+      } else {
+        stash.push({
+          id: selectedID,
+          size: 0,
+          hue: 0,
+          saturation: 0,
+          stashPos: Math.floor(i / 100) * 100 + (i % 100)
+        });
       }
       render();
     };
 
     stashGrid.appendChild(div);
+  }
+}
+
   });
 }
 
@@ -277,13 +293,30 @@ function randomize(type) {
   render();
 }
 
+
+function formatItem(item) {
+  const formatted = {
+    itemID: item.id,
+    stashPos: item.stashPos,
+    scaleModifier: item.size,
+    colorHue: item.hue,
+    colorSaturation: item.saturation
+  };
+  if (item.children && item.children.length > 0) {
+    formatted.children = item.children.map(formatItem);
+  }
+  return formatted;
+}
+
 function exportJSON() {
-  const blob = new Blob([JSON.stringify({ root: rootIndex, stash }, null, 2)], { type: "application/json" });
+  const formattedItems = stash.map(formatItem);
+  const blob = new Blob([JSON.stringify({ version: 1, items: formattedItems }, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = "stash.json";
   a.click();
 }
+
 
 function importJSON(e) {
   const file = e.target.files[0];
