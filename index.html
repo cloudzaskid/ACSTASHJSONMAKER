@@ -134,7 +134,10 @@
 
 <div class="footer">
   <div>
-    <select id="item-select"></select> Slot: <input type="number" id="slot-input" value="0" min="0" max="707" style="width:80px; background:#222; color:white; border:1px solid #555;">
+    
+    <input type="text" id="item-search" placeholder="Search items..." style="width:200px; margin-right:10px; background:#111; color:white; border:1px solid #555;" oninput="filterItems()">
+    <select id="item-select"></select>
+     Slot: <input type="number" id="slot-input" value="0" min="0" max="707" style="width:80px; background:#222; color:white; border:1px solid #555;">
     <button class="btn" onclick="addItem()">Add Item</button>
     <button class="btn" onclick="exportJSON()">Export JSON</button>
     <input type="file" id="import-file" onchange="importJSON(event)">
@@ -177,6 +180,21 @@ document.addEventListener('touchmove', e => {
   }
 });
 
+
+function filterItems() {
+  const query = document.getElementById('item-search').value.toLowerCase();
+  const select = document.getElementById('item-select');
+  select.innerHTML = '';
+  itemList.filter(item => item.toLowerCase().includes(query)).forEach(id => {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = id;
+    select.appendChild(opt);
+  });
+  filterItems();
+}
+
+
 const itemList = ["item_apple", "item_anti_gravity_grenade", "item_arrow", "item_arrow_heart", "item_arrow_lightbulb", "item_backpack", "item_backpack_black", "item_backpack_green", "item_backpack_large_base", "item_backpack_large_clover", "item_backpack_large_basketball", "item_backpack_pink", "item_backpack_small_base", "item_backpack_white", "item_backpack_with_flashlight", "item_balloon", "item_balloon_heart", "item_banana", "item_baseball_bat", "item_big_cup", "item_boombox", "item_box_fan", "item_boombox_neon", "item_calculator", "item_cardboard_box", "item_cash", "item_cash_pile", "item_cash_mega_pile", "item_clapper", "item_cluster_grenade", "item_cola", "item_cola_large", "item_company_ration", "item_company_ration_heal", "item_cracker", "item_crate", "item_crossbow", "item_crossbow_heart", "item_crowbar", "item_disc", "item_disposable_camera", "item_dynamite", "item_dynamite_cube", "item_egg", "item_flaregun", "item_flashbang", "item_flashlight", "item_flashlight_mega", "item_flashlight_red", "item_floppy3", "item_floppy5", "item_football", "item_frying_pan", "item_glowstick", "item_goldbar", "item_grenade", "item_heart_chunk", "item_heart_gun", "item_heartchocolatebox", "item_hh_key", "item_hookshot", "item_hoverpad", "item_impulse_grenade", "item_jetpack", "item_keycard", "item_lance", "item_large_banana", "item_mug", "item_nut", "item_ogre_hands", "item_ore_copper_l", "item_ore_copper_m", "item_ore_copper_s", "item_ore_gold_l", "item_ore_gold_m", "item_ore_gold_s", "item_ore_hell", "item_ore_silver_l", "item_ore_silver_m", "item_ore_silver_s", "item_painting_canvas", "item_paperpack", "item_pelican_case", "item_pickaxe", "item_pickaxe_cny", "item_pickaxe_cube", "item_pipe", "item_plunger", "item_pogostick", "item_police_baton", "item_pumpkin_pie", "item_pumpkinjack", "item_pumpkinjack_small", "item_quiver", "item_quiver_heart", "item_radioactive_broccoli", "item_randombox_mobloot_big", "item_randombox_mobloot_medium", "item_randombox_mobloot_small", "item_randombox_mobloot_weapons", "item_revolver", "item_revolver_ammo", "item_rope", "item_rpg", "item_rpg_ammo", "item_rpg_cny", "item_rubberducky", "item_ruby", "item_saddle", "item_scanner", "item_scissors", "item_shield", "item_shield_bones", "item_shield_police", "item_shotgun", "item_shotgun_ammo", "item_shredder", "item_shrinking_broccoli", "item_snowball", "item_stapler", "item_stick_armbones", "item_stick_bone", "item_sticker_dispenser", "item_sticky_dynamite", "item_stinky_cheese", "item_tablet", "item_tapedispenser", "item_tele_grenade", "item_theremin", "item_timebomb", "item_toilet_paper", "item_toilet_paper_mega", "item_toilet_paper_roll_empty", "item_treestick", "item_tripwire_explosive", "item_trophy", "item_turkey_leg", "item_turkey_whole", "item_umbrella", "item_umbrella_clover", "item_unidentified", "item_upsidedown_loot", "item_uranium_chunk_l", "item_uranium_chunk_m", "item_uranium_chunk_s", "item_whoopie", "item_zipline_gun", "item_rpg_easter", "item_rpg_ammo_egg", "item_revolver_gold"];
 
 const stash = [];
@@ -214,22 +232,33 @@ function render() {
       const div = document.createElement('div');
       div.className = 'item';
 
-      const slotLabel = document.createElement('div');
-      slotLabel.textContent = 'slot ' + slotNumber;
-      slotLabel.style.fontSize = '11px';
-      slotLabel.style.color = '#9f9';
-      slotLabel.style.marginTop = '4px';
+      // Always show slot label at bottom
+      const label = document.createElement('div');
+      label.textContent = 'slot ' + slotNumber;
+      label.style.fontSize = '11px';
+      label.style.color = 'lime';
+      label.style.marginTop = 'auto';
+      label.style.pointerEvents = 'none';
 
       const item = stash.find(obj => obj.stashPos === slotNumber);
       if (item) {
-        const name = document.createElement('div');
-        name.textContent = item.id;
-        name.style.fontSize = '10px';
-        name.style.color = '#fff';
-        div.appendChild(name);
+        
+    const icon = document.createElement('img');
+    icon.src = item.id === 'item_heart_gun' ? 'heart_gun_icon.png' : '';
+    icon.style.width = '30px';
+    icon.style.height = '30px';
+    icon.style.marginBottom = '2px';
+    div.appendChild(icon);
+
+    const name = document.createElement('div');
+    name.textContent = item.id;
+    name.style.fontSize = '10px';
+    name.style.color = '#fff';
+    div.appendChild(name);
+    
       }
 
-      div.appendChild(slotLabel);
+      div.appendChild(label);
 
       div.onclick = () => {
         const selectedID = document.getElementById('item-select').value;
