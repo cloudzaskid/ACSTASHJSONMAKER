@@ -1,42 +1,233 @@
-const itemList = [
-    "item_apple",
-    "item_anti_gravity_grenade",
-    "item_arrow",
-    "item_arrow_heart",
-    "item_arrow_lightbulb",
-    "item_backpack",
-    "item_backpack_black",
-    // Add the rest of your items here...
-];
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Management</title>
+    <style>
+        /* General Layout */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: white;
+            transition: background-color 0.5s ease-in-out;
+        }
 
-const itemSelect = document.getElementById('itemSelect');
-const itemGrid = document.getElementById('itemGrid');
+        /* Container */
+        #container {
+            display: flex;
+            padding: 20px;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
 
-function populateItemList() {
-    // Populate the dropdown
-    itemList.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item;
-        option.textContent = item;
-        itemSelect.appendChild(option);
-    });
+        /* Stash Section */
+        #stash {
+            flex: 1;
+            margin-right: 20px;
+            padding: 10px;
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
 
-    // Populate the stash grid
-    itemList.forEach(item => {
-        const div = document.createElement('div');
-        div.classList.add('item');
-        div.innerHTML = `<img src="path/to/${item}.png" alt="${item}">`;
-        itemGrid.appendChild(div);
-    });
-}
+        h2 {
+            text-align: center;
+        }
 
-function addItem() {
-    const selectedItem = itemSelect.value;
-    if (selectedItem) {
-        alert(`Item ${selectedItem} added to equipment!`);
-        // Logic to update the equipment slots goes here
-    }
-}
+        /* Grid Setup */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
 
-// Initialize the page
-populateItemList();
+        .grid img {
+            width: 100%;
+            height: auto;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .grid img:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Dropdown and Button */
+        .add-item {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #itemSelect {
+            padding: 10px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background-color: #222;
+            color: white;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        #itemSelect:hover {
+            background-color: #333;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #555;
+            transform: scale(1.05);
+        }
+
+        /* Equipment Section */
+        #equipment {
+            flex: 1;
+            padding: 10px;
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .equipmentSlots {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        /* Slot Styling */
+        .slot {
+            background-color: #2c2c2c;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 120px;
+            border: 2px solid #444;
+            position: relative;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .slot:hover {
+            background-color: #333;
+        }
+
+        .slot img {
+            width: 50%;
+            height: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .slot img.equipped {
+            transform: scale(1.2);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Item animations */
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .add-item button {
+            animation: slideIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="stash">
+            <h2>Stash</h2>
+            <div class="grid" id="itemGrid">
+                <!-- Dynamically populated grid items go here -->
+            </div>
+            <div class="add-item">
+                <label for="itemSelect">Select an item to add: </label>
+                <select id="itemSelect">
+                    <!-- Dynamically populated dropdown items go here -->
+                </select>
+                <button onclick="addItem()">Add Item</button>
+            </div>
+        </div>
+
+        <div id="equipment">
+            <h2>Equipment</h2>
+            <div class="equipmentSlots">
+                <div id="leftArm" class="slot">Left Arm</div>
+                <div id="rightArm" class="slot">Right Arm</div>
+                <div id="back" class="slot">Back</div>
+                <div id="leftHip" class="slot">Left Hip</div>
+                <div id="rightHip" class="slot">Right Hip</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const itemList = [
+            "item_apple",
+            "item_anti_gravity_grenade",
+            "item_arrow",
+            "item_arrow_heart",
+            "item_arrow_lightbulb",
+            "item_backpack",
+            "item_backpack_black",
+            // Add the rest of your items here...
+        ];
+
+        const itemSelect = document.getElementById('itemSelect');
+        const itemGrid = document.getElementById('itemGrid');
+
+        function populateItemList() {
+            // Populate the dropdown
+            itemList.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item;
+                option.textContent = item;
+                itemSelect.appendChild(option);
+            });
+
+            // Populate the stash grid
+            itemList.forEach(item => {
+                const div = document.createElement('div');
+                div.classList.add('item');
+                div.innerHTML = `<img src="path/to/${item}.png" alt="${item}">`;
+                itemGrid.appendChild(div);
+            });
+        }
+
+        function addItem() {
+            const selectedItem = itemSelect.value;
+            if (selectedItem) {
+                alert(`Item ${selectedItem} added to equipment!`);
+                // Logic to update the equipment slots goes here
+            }
+        }
+
+        // Initialize the page
+        populateItemList();
+    </script>
+</body>
+</html>
