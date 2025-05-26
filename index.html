@@ -1,152 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory and Equipment System</title>
-    <style>
-        /* Add previous styles here */
-        .upload-container {
-            margin: 20px 0;
-        }
-        .upload-input {
-            padding: 10px;
-            background-color: #333;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        .upload-input:hover {
-            background-color: #555;
-        }
-        .item-list {
-            margin-top: 20px;
-            background-color: #222;
-            padding: 10px;
-            border-radius: 5px;
-            color: #bbb;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .error-message {
-            color: red;
-            font-size: 14px;
-        }
-        .stash-item {
-            width: 60px;
-            height: 60px;
-            background-color: #333;
-            border-radius: 5px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #ccc;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
+const itemList = [
+    "item_apple",
+    "item_anti_gravity_grenade",
+    "item_arrow",
+    "item_arrow_heart",
+    "item_arrow_lightbulb",
+    "item_backpack",
+    "item_backpack_black",
+    // Add the rest of your items here...
+];
 
-<div class="container">
-    <!-- Stash Section -->
-    <div class="stash" id="stashGrid">
-        <!-- Dynamically populated stash items -->
-    </div>
+const itemSelect = document.getElementById('itemSelect');
+const itemGrid = document.getElementById('itemGrid');
 
-    <!-- Equipment Section -->
-    <div class="equipment">
-        <!-- Equipment silhouette and slots (same as before) -->
-    </div>
-</div>
-
-<!-- Button Section -->
-<div class="button-container">
-    <button class="button">Clear All</button>
-    <button class="button">Reload Example Stash</button>
-    <button class="button">Add Test Item</button>
-    <button class="button">Show 3D Models</button>
-</div>
-
-<!-- Upload Section -->
-<div class="upload-container">
-    <input type="file" id="fileInput" class="upload-input" accept=".txt, .json" />
-    <div class="error-message" id="errorMessage"></div>
-    <div class="item-list" id="itemList"></div>
-</div>
-
-<script>
-    // Initialize stash grid
-    const stashGrid = document.getElementById('stashGrid');
-    const stashSize = 42; // 7x6 grid
-    const stashSlots = [];
-
-    // Create empty stash slots dynamically
-    for (let i = 0; i < stashSize; i++) {
-        const slot = document.createElement('div');
-        slot.classList.add('stash-item');
-        slot.setAttribute('data-slot', i);
-        slot.addEventListener('click', () => assignItemToSlot(i));
-        stashSlots.push(slot);
-        stashGrid.appendChild(slot);
-    }
-
-    // Function to handle file upload
-    document.getElementById('fileInput').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const content = e.target.result;
-            const itemList = content.split('\n').map(item => item.trim()).filter(item => item.length > 0);
-
-            // Clear previous error message
-            document.getElementById('errorMessage').textContent = '';
-
-            // Display item list and assign to stash slots
-            displayItemList(itemList);
-            assignItemsToStash(itemList);
-        };
-        reader.readAsText(file);
+function populateItemList() {
+    // Populate the dropdown
+    itemList.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item;
+        option.textContent = item;
+        itemSelect.appendChild(option);
     });
 
-    // Display items in the list
-    function displayItemList(items) {
-        const itemListContainer = document.getElementById('itemList');
-        itemListContainer.innerHTML = ''; // Clear previous list
-        items.forEach(item => {
-            const div = document.createElement('div');
-            div.textContent = item;
-            itemListContainer.appendChild(div);
-        });
-    }
+    // Populate the stash grid
+    itemList.forEach(item => {
+        const div = document.createElement('div');
+        div.classList.add('item');
+        div.innerHTML = `<img src="path/to/${item}.png" alt="${item}">`;
+        itemGrid.appendChild(div);
+    });
+}
 
-    // Function to assign items to stash slots
-    function assignItemsToStash(items) {
-        let itemIndex = 0;
-        for (let i = 0; i < stashSize; i++) {
-            if (itemIndex < items.length) {
-                stashSlots[i].textContent = items[itemIndex];
-                stashSlots[i].style.backgroundColor = '#444'; // Show assigned item
-                itemIndex++;
-            } else {
-                stashSlots[i].textContent = '';
-                stashSlots[i].style.backgroundColor = '#333'; // Empty slot
-            }
-        }
+function addItem() {
+    const selectedItem = itemSelect.value;
+    if (selectedItem) {
+        alert(`Item ${selectedItem} added to equipment!`);
+        // Logic to update the equipment slots goes here
     }
+}
 
-    // Assign clicked item to the selected slot
-    function assignItemToSlot(slotIndex) {
-        const itemList = document.getElementById('itemList').children;
-        if (itemList.length > 0) {
-            stashSlots[slotIndex].textContent = itemList[0].textContent; // Place first item in list to slot
-            stashSlots[slotIndex].style.backgroundColor = '#444';
-            itemList[0].remove(); // Remove item from list
-        }
-    }
-</script>
-
-</body>
-</html>
+// Initialize the page
+populateItemList();
