@@ -1,223 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>AC JSON HUB</title>
-  <style>
-    body {
-      margin: 0;
-      background: #2e1f4e;
-      color: white;
-      font-family: 'Segoe UI', sans-serif;
-    }
-    .container {
-      display: flex;
-      height: 100vh;
-      padding: 10px;
-    }
-    .inventory, .inspector {
-      flex: 1;
-      padding: 20px;
-      border-radius: 8px;
-      background: #3b1e70;
-    }
-    .title {
-      font-size: 24px;
-      color: #f1c6fc;
-      margin-bottom: 20px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .item {
-      background: #5c3d8b;
-      border: 2px solid #7f5d8d;
-      padding: 10px;
-      text-align: center;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .item:hover {
-      background: #7f5d8d;
-      transform: scale(1.05);
-    }
-    .edit-panel {
-      background: #4f2f6d;
-      padding: 15px;
-      border-radius: 8px;
-      margin-top: 10px;
-    }
-    .edit-panel input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 6px;
-      border: 1px solid #7f5d8d;
-      background: #6a3f85;
-      color: white;
-    }
-    .bottom-bar {
-      margin-top: 20px;
-      display: flex;
-      justify-content: space-between;
-    }
-    .button {
-      background: #aa66ff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .button:hover {
-      background: #cc99ff;
-    }
-    .button:disabled {
-      background: #666;
-    }
-    select {
-      background: #6a3f85;
-      color: white;
-      border: 1px solid #7f5d8d;
-      padding: 8px;
-      border-radius: 6px;
-    }
-    .sliders {
-      margin-top: 20px;
-    }
-    .sliders label {
-      display: block;
-      margin-bottom: 5px;
-    }
-    .sliders input[type="range"] {
-      width: 100%;
-      background: #7f5d8d;
-      border-radius: 6px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory and Equipment System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+        }
+        .stash, .equipment {
+            flex: 1;
+            margin-right: 20px;
+        }
+        .stash {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-gap: 10px;
+        }
+        .stash-item {
+            width: 60px;
+            height: 60px;
+            background-color: #333;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ccc;
+        }
+        .equipment {
+            position: relative;
+            height: 400px;
+            background-color: #222;
+            border: 1px solid #444;
+            border-radius: 10px;
+        }
+        .equipment-silhouette {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 400px;
+            border: 2px solid white;
+        }
+        .equipment-slot {
+            position: absolute;
+            border: 1px solid #444;
+            background-color: #222;
+            color: #bbb;
+            padding: 10px;
+        }
+        .equipment-slot[data-slot="left-arm"] { top: 50px; left: 10px; }
+        .equipment-slot[data-slot="right-arm"] { top: 50px; right: 10px; }
+        .equipment-slot[data-slot="left-leg"] { bottom: 50px; left: 10px; }
+        .equipment-slot[data-slot="right-leg"] { bottom: 50px; right: 10px; }
+        .equipment-slot[data-slot="back"] { top: 150px; left: 50%; transform: translateX(-50%); }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #333;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .button:hover {
+            background-color: #555;
+        }
+    </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="inventory">
-    <div class="title">Inventory</div>
-    <div class="grid" id="stashGrid"></div>
-    <div class="bottom-bar">
-      <select id="itemSelect"></select>
-      <button class="button" onclick="addItem()">Add</button>
-      <button class="button" onclick="exportStash()">Export JSON</button>
+    <!-- Stash Section -->
+    <div class="stash">
+        <div class="stash-item">Item 1</div>
+        <div class="stash-item">Item 2</div>
+        <div class="stash-item">Item 3</div>
+        <div class="stash-item">Item 4</div>
+        <div class="stash-item">Item 5</div>
+        <div class="stash-item">Item 6</div>
+        <div class="stash-item">Item 7</div>
+        <div class="stash-item">Item 8</div>
+        <div class="stash-item">Item 9</div>
+        <div class="stash-item">Item 10</div>
+        <div class="stash-item">Item 11</div>
+        <div class="stash-item">Item 12</div>
+        <div class="stash-item">Item 13</div>
+        <div class="stash-item">Item 14</div>
+        <div class="stash-item">Item 15</div>
+        <div class="stash-item">Item 16</div>
+        <div class="stash-item">Item 17</div>
+        <div class="stash-item">Item 18</div>
+        <div class="stash-item">Item 19</div>
+        <div class="stash-item">Item 20</div>
+        <div class="stash-item">Item 21</div>
+        <div class="stash-item">Item 22</div>
+        <div class="stash-item">Item 23</div>
+        <div class="stash-item">Item 24</div>
+        <div class="stash-item">Item 25</div>
+        <div class="stash-item">Item 26</div>
+        <div class="stash-item">Item 27</div>
+        <div class="stash-item">Item 28</div>
+        <div class="stash-item">Item 29</div>
+        <div class="stash-item">Item 30</div>
+        <div class="stash-item">Item 31</div>
+        <div class="stash-item">Item 32</div>
+        <div class="stash-item">Item 33</div>
+        <div class="stash-item">Item 34</div>
+        <div class="stash-item">Item 35</div>
+        <div class="stash-item">Item 36</div>
+        <div class="stash-item">Item 37</div>
+        <div class="stash-item">Item 38</div>
+        <div class="stash-item">Item 39</div>
+        <div class="stash-item">Item 40</div>
+        <div class="stash-item">Item 41</div>
+        <div class="stash-item">Item 42</div>
     </div>
-  </div>
-  <div class="inspector">
-    <div class="title">Inspector</div>
-    <div id="editor" class="edit-panel">Click an item to edit it</div>
-  </div>
+
+    <!-- Equipment Section -->
+    <div class="equipment">
+        <div class="equipment-silhouette"></div>
+        <div class="equipment-slot" data-slot="left-arm">Left Arm</div>
+        <div class="equipment-slot" data-slot="right-arm">Right Arm</div>
+        <div class="equipment-slot" data-slot="left-leg">Left Leg</div>
+        <div class="equipment-slot" data-slot="right-leg">Right Leg</div>
+        <div class="equipment-slot" data-slot="back">Back</div>
+        <div>Select a bag to view contents here</div>
+    </div>
 </div>
 
-<script>
-const fullItemList = [
-  "item_apple", "item_anti_gravity_grenade", "item_arrow", "item_arrow_heart", "item_arrow_lightbulb",
-  "item_backpack", "item_backpack_black", "item_backpack_green", "item_backpack_large_base",
-  "item_backpack_large_clover", "item_backpack_large_basketball", "item_backpack_pink",
-  "item_backpack_small_base", "item_backpack_white", "item_backpack_with_flashlight", "item_balloon",
-  "item_heart_gun", "item_shredder", "item_jetpack", "item_timebomb", "item_turkey_whole"
-];
-
-const stash = [];
-
-function displayName(name) {
-  return name.replace("item_", "").replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
-}
-
-function renderStash() {
-  const grid = document.getElementById("stashGrid");
-  grid.innerHTML = '';
-  stash.forEach((item, i) => {
-    const div = document.createElement("div");
-    div.className = "item";
-    div.textContent = displayName(item.name);
-    div.onclick = () => editItem(i);
-    grid.appendChild(div);
-  });
-}
-
-function addItem() {
-  const select = document.getElementById("itemSelect");
-  const name = select.value;
-  if (!name) return;
-  stash.push({
-    name,
-    hue: 0,
-    saturation: 0,
-    size: 0,
-    contents: []
-  });
-  renderStash();
-}
-
-function editItem(index) {
-  const item = stash[index];
-  const editor = document.getElementById("editor");
-  editor.innerHTML = `
-    <strong>${displayName(item.name)}</strong>
-    <div class="sliders">
-      <label>Size (-127–127):</label>
-      <input type="range" min="-127" max="127" value="${item.size}" onchange="updateProp(${index}, 'size', this.value)">
-      <label>Hue (0–240):</label>
-      <input type="range" min="0" max="240" value="${item.hue}" onchange="updateProp(${index}, 'hue', this.value)">
-      <label>Saturation (-124–124):</label>
-      <input type="range" min="-124" max="124" value="${item.saturation}" onchange="updateProp(${index}, 'saturation', this.value)">
-    </div>
-    <div style="margin-top:10px">
-      <button class="button" onclick="deleteItem(${index})">Delete</button>
-      <button class="button" onclick="randomize(${index})">Randomize</button>
-    </div>
-  `;
-}
-
-function updateProp(index, prop, value) {
-  stash[index][prop] = Number(value);
-}
-
-function deleteItem(index) {
-  stash.splice(index, 1);
-  renderStash();
-}
-
-function randomize(index) {
-  stash[index].hue = Math.floor(Math.random() * 241);
-  stash[index].saturation = Math.floor(Math.random() * 249) - 124;
-  stash[index].size = Math.floor(Math.random() * 255) - 127;
-  editItem(index);
-}
-
-function exportStash() {
-  const json = JSON.stringify(stash, null, 2);
-  const blob = new Blob([json], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "stash.json";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-window.onload = () => {
-  const select = document.getElementById("itemSelect");
-  fullItemList.forEach(i => {
-    const opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = displayName(i);
-    select.appendChild(opt);
-  });
-  renderStash();
-};
-</script>
+<!-- Button Section -->
+<div class="button-container">
+    <button class="button">Clear All</button>
+    <button class="button">Reload Example Stash</button>
+    <button class="button">Add Test Item</button>
+    <button class="button">Show 3D Models</button>
+</div>
 
 </body>
 </html>
